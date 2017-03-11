@@ -1,0 +1,147 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sqlite.sqlite4.lsm</groupId>
+        <artifactId>lsm-bindings-native</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>lsm-bindings-native-impl</artifactId>
+
+    <packaging>so</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sqlite.sqlite4.lsm</groupId>
+            <artifactId>lsm-bindings-java</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <executions>
+                    <execution>
+                        <id>Generate SQLite repository manifest.uuid</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${basedir}/../../sqlite-export/create-fossil-manifest</executable>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Run autogen.sh</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${basedir}/../../sqlite4/autogen.sh</executable>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Run configure</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>${basedir}/../../sqlite4/configure</executable>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>Build SQLite</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>make</executable>
+                            <arguments>
+                                <!-- TODO: Discover cpu count in runtime -->
+                                <argument>-j8</argument>
+                                <argument>-f</argument>
+                                <argument>Makefile.linux-gcc</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <workingDirectory>${basedir}/../../sqlite4/</workingDirectory>
+                </configuration>
+
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>native-maven-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <!--  trigger javah -->
+                    <javahOS>linux</javahOS>
+
+                    <compilerProvider>generic-classic</compilerProvider>
+                    <compilerExecutable>cc</compilerExecutable>
+                    <linkerExecutable>ld</linkerExecutable>
+                    <sources>
+                        <source>
+                            <directory>../src/main/native</directory>
+                                <fileNames>
+                                    <fileName>lsm_bindings.c</fileName>
+                                </fileNames>
+                        </source>
+                    </sources>
+
+                    <compilerStartOptions>
+                        <compilerStartOption>-std=c11 -fPIC -O2 -g -I../../sqlite4/src/ -I../../sqlite4/</compilerStartOption>
+                    </compilerStartOptions>
+
+                    <linkerEndOptions>
+                        <linkerEndOption>-shared -L../../sqlite4/ -lc -lm -lpthread -lsqlite4</linkerEndOption>
+                    </linkerEndOptions>
+
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <id>Java header generation</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <javahProvider>default</javahProvider>
+                            <javahOutputDirectory>${project.build.directory}/custom-javah</javahOutputDirectory>
+                            <workingDirectory>${basedir}</workingDirectory>
+                            <javahOutputFileName>lsm_bindings.h</javahOutputFileName>
+                            <javahClassNames>
+                                <javahClassName>org.sqlite.sqlite4.lsm.raw.Cursor</javahClassName>
+                                <javahClassName>org.sqlite.sqlite4.lsm.raw.Database</javahClassName>
+                                <javahClassName>org.sqlite.sqlite4.lsm.raw.Environment</javahClassName>
+                                <javahClassName>org.sqlite.sqlite4.lsm.raw.Lsm</javahClassName>
+                            </javahClassNames>
+                        </configuration>
+                        <goals>
+                            <goal>javah</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+            </plugin>
+        </plugins>
+    </build>
+</project>

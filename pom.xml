@@ -1,0 +1,47 @@
+<!-- Thanks http://www.tricoder.net/blog/?p=197 for an article -->
+<project>
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.sqlite.sqlite4.lsm</groupId>
+    <artifactId>lsm-bindings</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>lsm-bindings</name>
+    <description>Minimalistic bindings for SQLite 4 LSM storage</description>
+
+    <packaging>pom</packaging>
+
+    <profiles>
+        <profile>
+            <id>packaging-dev</id>
+            <modules>
+                <module>java</module>
+                <module>native</module>
+                <module>combined-tests</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>packaging-release</id>
+            <modules>
+                <module>java</module>
+                <module>native</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>native-maven-plugin</artifactId>
+                    <version>1.0-alpha-8</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.6.0</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

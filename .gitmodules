@@ -1,0 +1,7 @@
+[submodule "sqlite4"]
+	path = sqlite4
+	url = https://github.com/techzilla/sqlite4.git
+	branch = trunk
+[submodule "sqlite-export"]
+	path = sqlite-export
+	url = https://github.com/loqu8/sqlite-export.git

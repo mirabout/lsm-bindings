@@ -1,0 +1,27 @@
+<project>
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sqlite.sqlite4.lsm</groupId>
+        <artifactId>lsm-bindings</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>lsm-bindings-native</artifactId>
+    <packaging>pom</packaging>
+
+    <profiles>
+        <profile>
+            <id>native-linux</id>
+            <activation>
+                <property>
+                    <name>platform</name>
+                    <value>linux</value>
+                </property>
+            </activation>
+            <modules>
+                <module>linux</module>
+            </modules>
+        </profile>
+    </profiles>
+</project>
